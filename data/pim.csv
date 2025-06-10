@@ -1,0 +1,31 @@
+test_case_id,action,first_name,last_name,employee_id,name,edit_type,dob,gender,address,city,mobile,email,company,job_title,from_date,to_date,expected_result
+TC_001,create,John,Doe,1001,,,,,,,,,,,,,pass
+TC_002,create,Jane,Smith,1002,,,,,,,,,,,,,pass
+TC_003,create,,Smith,1003,,,,,,,,,,,,,fail
+TC_004,create,Anna,,1004,,,,,,,,,,,,,fail
+TC_005,create,John,Doe,1001,,,,,,,,,,,,,fail
+TC_006,create,Robert,Brown,abcd,,,,,,,,,,,,fail
+TC_007,create,Alice,Johnson,1005,,,,,,,,,,,,,pass
+TC_008,create,VeryLongFirstNameExceedingLimit,Smith,1006,,,,,,,,,,,,fail
+TC_009,create,Jane,Smith,1007,,,,,,,,,,,,,pass
+TC_010,create,Jane,Smith,, ,,,,,,,,,,,,fail
+TC_011,create,Jane,Smith,1008,,,,,,,,,,,,,pass
+TC_012,create,Jane,Smith,1009,,,,,,,,,,,,,pass
+TC_013,create,Jane,Smith,1010,,,,,,,,,,,,,pass
+TC_014,create,Jane,Smith,1011,,,,,,,,,,,,,pass
+TC_015,create,Jane,Smith,1012,,,,,,,,,,,,,pass
+TC_016,create,Jane,Smith,1013,,,,,,,,,,,,,pass
+TC_017,create,Jane,Smith,1014,,,,,,,,,,,,,pass
+TC_018,create,Jane,Smith,1015,,,,,,,,,,,,,pass
+TC_019,create,Jane,Smith,1016,,,,,,,,,,,,,pass
+TC_020,create,Jane,Smith,1017,,,,,,,,,,,,,pass
+TC_021,edit,,,,John Doe,personal,1990-01-01,Male,,,,,,,,pass
+TC_022,edit,,,,John Doe,personal,notadate,Male,,,,,,,,fail
+TC_023,edit,,,,John Doe,personal,1990-01-01,Unknown,,,,,,,,fail
+TC_024,edit,,,,Jane Smith,contact,,,,123 Main St,Metropolis,1234567890,jane.smith@email.com,,,,pass
+TC_025,edit,,,,Jane Smith,contact,,,,,Metropolis,1234567890,jane.smith@email.com,,,,fail
+TC_026,edit,,,,Jane Smith,contact,,,,123 Main St,Metropolis,notanumber,jane.smith@email.com,,,,fail
+TC_027,edit,,,,Jane Smith,contact,,,,123 Main St,Metropolis,1234567890,invalidemail,,,,fail
+TC_028,edit,,,,Alice Johnson,experience,,,,,,,Acme Corp,Engineer,2015-01-01,2020-01-01,pass
+TC_029,edit,,,,Alice Johnson,experience,,,,,,,Acme Corp,Engineer,2020-01-01,2015-01-01,fail
+TC_030,edit,,,,Nonexistent User,personal,1990-01-01,Male,,,,,,,,fail

@@ -1,0 +1,35 @@
+{
+  "browser": "chrome",
+  "environment": "dev",
+  "environments": {
+    "dev": {
+      "url": "https://opensource-demo.orangehrmlive.com/web/index.php/auth/login",
+      "username": "Admin",
+      "password": "admin123",
+      "db_server": "dev-db.example.com",
+      "db_user": "dev_db_user",
+      "db_password": "dev_db_pass"
+    },
+    "qa": {
+      "url": "https://qa.example.com",
+      "username": "qa_user",
+      "password": "qa_pass",
+      "db_server": "qa-db.example.com",
+      "db_user": "qa_db_user",
+      "db_password": "qa_db_pass"
+    },
+    "prod": {
+      "url": "https://prod.example.com",
+      "username": "prod_user",
+      "password": "prod_pass",
+      "db_server": "prod-db.example.com",
+      "db_user": "prod_db_user",
+      "db_password": "prod_db_pass"
+    }
+  },
+  "mobile": false,
+  "remote_url": "",
+  "capabilities": {},
+  "appium_server_url": "",
+  "desired_capabilities": {}
+}
