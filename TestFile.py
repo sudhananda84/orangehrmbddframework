@@ -6,3 +6,4 @@ print(product_price_dict)
 
 for i in range(1, 10):
     print(i)
+
