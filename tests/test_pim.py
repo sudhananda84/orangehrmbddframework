@@ -45,7 +45,7 @@ def test_TC_005(selenium_driver):
     pim.add_employee(first_name="John", last_name="Doe", employee_id=emp_id)
     HomePage(selenium_driver).navigate_to_pim()
     pim.add_employee(first_name="John", last_name="Doe", employee_id=emp_id)
-    assert pim.is_error_displayed("Employee already exists")
+    assert pim.is_error_displayed("Employee Id is duplicated")
 
 def test_TC_006(selenium_driver):
     pim = PIMPage(selenium_driver)
