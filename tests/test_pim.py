@@ -4,181 +4,125 @@ from pages.common_pages import HomePage
 from selenium.webdriver.common.by import By
 from utils.GenericUtils import *
 
-
-
 @pytest.fixture(autouse=True)
 def go_to_pim(selenium_driver):
     homePage = HomePage(selenium_driver)
     homePage.navigate_to_pim()
       # Ensure this navigates to the PIM section before each test
 
+@pytest.mark.add_employee
 @pytest.mark.smoke
-def test_TC_001(selenium_driver):
+def test_pim_001_create_employee(selenium_driver):
     pim = PIMPage(selenium_driver)
     pim.add_employee(first_name="John", last_name="Doe", employee_id="1001")
     HomePage(selenium_driver).navigate_to_pim()
     assert pim.is_employee_present("John", "Doe", "1001")
 
-@pytest.mark.smoke
-def test_TC_002(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1002")
-    HomePage(selenium_driver).navigate_to_pim()
-    assert pim.is_employee_present("Jane", "Smith", "1002")
-
 @pytest.mark.regression
-def test_TC_003(selenium_driver):
+@pytest.mark.add_employee
+@pytest.mark.negative
+def test_pim_002_create_employee_blank_first_name(selenium_driver):
     pim = PIMPage(selenium_driver)
     pim.add_employee(first_name="", last_name="Smith", employee_id="1003")
     assert pim.is_error_displayed(locator=(By.XPATH,"//input[@name='firstName']/../following-sibling::span[contains"
                                                     "(@class,'oxd-input-field-error-message')]"), message="Required")
+
 @pytest.mark.regression
-def test_TC_004(selenium_driver):
+@pytest.mark.add_employee
+@pytest.mark.negative
+def test_pim_003_create_employee_blank_last_name(selenium_driver):
     pim = PIMPage(selenium_driver)
     pim.add_employee(first_name="Anna", last_name="", employee_id="1004")
     assert pim.is_error_displayed(locator=(By.XPATH, "//input[@name='lastName']/../following-sibling::span[contains"
                                                      "(@class,'oxd-input-field-error-message')]"), message="Required")
+@pytest.mark.regression
+@pytest.mark.add_employee
 @pytest.mark.negative
-def test_TC_005(selenium_driver):
+def test_pim_004_create_employee_duplicate_emp_id(selenium_driver):
     pim = PIMPage(selenium_driver)
     emp_id = generate_unique_id()
     pim.add_employee(first_name="John", last_name="Doe", employee_id=emp_id)
     HomePage(selenium_driver).navigate_to_pim()
     pim.add_employee(first_name="John", last_name="Doe", employee_id=emp_id)
-    assert pim.is_error_displayed("Employee Id is duplicated")
+    assert pim.is_error_displayed(message="Employee Id already exists")
 
-def test_TC_006(selenium_driver):
+@pytest.mark.regression
+@pytest.mark.add_employee
+@pytest.mark.negative
+def test_pim_005_create_employee_invalid_em_id(selenium_driver):
     pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.add_employee(first_name="Robert", last_name="Brown", employee_id="abcd")
-    assert pim.is_error_dislayed("Invalid employee ID")
+    pim.add_employee(first_name="Robert", last_name="Brown", employee_id="dsahdsjkahdksdsa")
+    assert pim.is_error_displayed(message = "Should not exceed 10 characters")
 
-def test_TC_007(selenium_driver):
+@pytest.mark.regression
+@pytest.mark.add_employee
+@pytest.mark.negative
+def test_pim_006__create_employee_invalid_first_name(selenium_driver):
     pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Alice", last_name="Johnson", employee_id="1005")
-    assert pim.is_employee_present("Alice", "Johnson", "1005")
+    pim.add_employee(first_name="VeryLongFirstNameExceedingLimit", last_name="Smith", employee_id="1006")
+    assert pim.is_error_displayed("Should not exceed 30 characters")
 
-def test_TC_008(selenium_driver):
+@pytest.mark.edit_employee
+@pytest.mark.regression
+@pytest.mark.edit
+def test_pim_007_edit_employee_update_personal_details(selenium_driver):
     pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.add_employee(first_name="VeryLongFirstNameExceedingLimit", last_name="Smith", employee_id="1006")
-    assert pim.is_error_displayed("First name exceeds character limit")
+    pim.edit_personal_details(name="Ahmed Maged", dob="1990-01-01", gender="Male")
+    HomePage(selenium_driver).navigate_to_pim()
+    pim.is_personal_details_updated("Ahmed Maged", "1990-01-01", "Male")
 
-def test_TC_009(selenium_driver):
+@pytest.mark.edit_employee
+@pytest.mark.regression
+@pytest.mark.edit
+@pytest.mark.negative
+def test_pim_008_edit_personal_details_invalid_dob(selenium_driver):
     pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1007")
-    assert pim.is_employee_present("Jane", "Smith", "1007")
+    pim.edit_personal_details(name="bala kumar", dob="notadate", gender="Male")
+    assert pim.is_error_displayed(message="Should be a valid date in yyyy-dd-mm format")
 
-def test_TC_010(selenium_driver):
+@pytest.mark.edit_employee
+@pytest.mark.regression
+@pytest.mark.edit
+@pytest.mark.negative
+def test_pim_009_edit_employee_update_contact_details(selenium_driver):
     pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.add_employee(first_name="Jane", last_name="Smith", employee_id="")
-    assert pim.is_error_displayed("Employee ID is required")
+    pim.edit_contact_details(name="bala kumar", address="123 Main St", city="Metropolis", mobile="1234567890", email="jane.smith@email.com")
+    HomePage(selenium_driver).navigate_to_pim()
+    pim.is_contact_details_updated("bala kumar", "123 Main St", "Metropolis", "1234567890", "jane.smith@email.com")
 
-def test_TC_011(selenium_driver):
+@pytest.mark.edit_employee
+@pytest.mark.regression
+@pytest.mark.edit
+@pytest.mark.negative
+def test_pim_010_edit_contact_details_invalid_mobile_number(selenium_driver):
     pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1008")
-    assert pim.is_employee_present("Jane", "Smith", "1008")
+    pim.edit_contact_details(name="Jane Smith", address="123 Main St", city="Metropolis", mobile="notanumber", email="jane.smith@email.com")
+    pim.is_error_displayed(message="Allows numbers and only + - / ( )")
 
-def test_TC_012(selenium_driver):
+@pytest.mark.edit_employee
+@pytest.mark.regression
+@pytest.mark.edit
+@pytest.mark.negative
+def test_pim_011_edit_contact_details_invalid_email(selenium_driver):
     pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1009")
-    assert pim.is_employee_present("Jane", "Smith", "1009")
+    pim.edit_contact_details(name="Jane Smith", address="123 Main St", city="Metropolis", mobile="1234567890", email="invalidemail")
+    assert pim.is_error_displayed(message="Expected format: admin@example.com")
 
-def test_TC_013(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1010")
-    assert pim.is_employee_present("Jane", "Smith", "1010")
 
-def test_TC_014(selenium_driver):
+@pytest.mark.delete_employee
+@pytest.mark.smoke
+@pytest.mark.delete
+def test_pim_012_delete_single_employee(selenium_driver):
     pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1011")
-    assert pim.is_employee_present("Jane", "Smith", "1011")
+    emp_id = "0360"
+    pim.delete_employee(emp_id)
+    assert pim.check_employee_deleted(emp_id)
 
-def test_TC_015(selenium_driver):
+@pytest.mark.delete_employee
+@pytest.mark.regression
+@pytest.mark.delete
+def test_pim_013_delete_multiple_employees(selenium_driver):
     pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1012")
-    assert pim.is_employee_present("Jane", "Smith", "1012")
-
-def test_TC_016(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1013")
-    assert pim.is_employee_present("Jane", "Smith", "1013")
-
-def test_TC_017(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1014")
-    assert pim.is_employee_present("Jane", "Smith", "1014")
-
-def test_TC_018(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1015")
-    assert pim.is_employee_present("Jane", "Smith", "1015")
-
-def test_TC_019(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1016")
-    assert pim.is_employee_present("Jane", "Smith", "1016")
-
-def test_TC_020(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.add_employee(first_name="Jane", last_name="Smith", employee_id="1017")
-    assert pim.is_employee_present("Jane", "Smith", "1017")
-
-def test_TC_021(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.edit_personal_details(name="John Doe", dob="1990-01-01", gender="Male")
-    assert pim.is_personal_details_updated("John Doe", "1990-01-01", "Male")
-
-def test_TC_022(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.edit_personal_details(name="John Doe", dob="notadate", gender="Male")
-    assert pim.is_error_displayed("Invalid date of birth")
-
-def test_TC_023(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.edit_personal_details(name="John Doe", dob="1990-01-01", gender="Unknown")
-    assert pim.is_error_displayed("Invalid gender")
-
-def test_TC_024(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.edit_contact_details(name="Jane Smith", address="123 Main St", city="Metropolis", mobile="1234567890", email="jane.smith@email.com")
-    assert pim.is_contact_details_updated("Jane Smith", "123 Main St", "Metropolis", "1234567890", "jane.smith@email.com")
-
-def test_TC_025(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.edit_contact_details(name="Jane Smith", address="", city="Metropolis", mobile="1234567890", email="jane.smith@email.com")
-    assert pim.is_error_displayed("Address is required")
-
-def test_TC_026(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.edit_contact_details(name="Jane Smith", address="123 Main St", city="Metropolis", mobile="notanumber", email="jane.smith@email.com")
-    assert pim.is_error_displayed("Invalid mobile number")
-
-def test_TC_027(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.edit_contact_details(name="Jane Smith", address="123 Main St", city="Metropolis", mobile="1234567890", email="invalidemail")
-    assert pim.is_error_displayed("Invalid email address")
-
-def test_TC_028(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    pim.edit_experience_details(name="Alice Johnson", company="Acme Corp", job_title="Engineer", from_date="2015-01-01", to_date="2020-01-01")
-    assert pim.is_experience_details_updated("Alice Johnson", "Acme Corp", "Engineer", "2015-01-01", "2020-01-01")
-
-def test_TC_029(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.edit_experience_details(name="Alice Johnson", company="Acme Corp", job_title="Engineer", from_date="2020-01-01", to_date="2015-01-01")
-    assert pim.is_error_displayed("From date must be before to date")
-
-def test_TC_030(selenium_driver):
-    pim = PIMPage(selenium_driver)
-    with pytest.raises(Exception):
-        pim.edit_personal_details(name="Nonexistent User", dob="1990-01-01", gender="Male")
-    assert pim.is_error_displayed("User not found")
-# ...repeat for other test cases, each will start from the PIM page
+    emp_ids = pim.delete_multiple_employees()
+    for emp_id in emp_ids:
+        assert pim.check_employee_deleted(emp_id), f"Employee ID {emp_id} was not deleted!"

@@ -12,15 +12,27 @@ class WebEvents:
         self.driver = driver
         self.timeout = timeout
 
-    def click_element(self, locator):
+    def click_element(self, locator=None, element=None):
         try:
-            element = WebDriverWait(self.driver, self.timeout).until(
-                EC.element_to_be_clickable(locator)
-            )
-            element.click()
-        except (TimeoutException, ElementClickInterceptedException, ElementNotInteractableException, StaleElementReferenceException) as e:
+            if element is not None:
+                element = WebDriverWait(self.driver, self.timeout).until(
+                    EC.element_to_be_clickable(element)
+                )
+                element.click();
+            else:
+                element = WebDriverWait(self.driver, self.timeout).until(
+                    EC.element_to_be_clickable(locator)
+                )
+                element.click()
+        except (ElementClickInterceptedException, ElementNotInteractableException, TimeoutException) as e:
+            self.driver.execute_script("arguments[0].click();", element)
+        except StaleElementReferenceException as e:
+            self.driver.find_element(locator).click()
+        except Exception as e:
             print(f"Error clicking element {locator}: {e}")
             raise
+
+
 
     def enter_text(self, locator, text):
         try:
@@ -71,10 +83,25 @@ class WebEvents:
             element = WebDriverWait(self.driver, self.timeout).until(
                 EC.presence_of_element_located(locator)
             )
+            print(element.get_attribute(attribute))
             return element.get_attribute(attribute)
         except (TimeoutException, NoSuchElementException, StaleElementReferenceException) as e:
             print(f"Error getting attribute '{attribute}' from element {locator}: {e}")
             raise
+
+    def select_dropdown_option(self, dropdown_locator, option_text, timeout=10):
+        # Click the dropdown to expand options
+        dropdown = WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable(dropdown_locator)
+        )
+        dropdown.click()
+        # Find and click the option
+        option_locator = (By.XPATH, f"//div[@role='option' and .='{option_text}']")
+        option = WebDriverWait(self.driver, timeout).until(
+            EC.element_to_be_clickable(option_locator)
+        )
+        option.click()
+
 
 class Validators:
     def __init__(self, driver, timeout=10):
@@ -153,7 +180,10 @@ class Validators:
             element = WebDriverWait(self.driver, self.timeout).until(
                 EC.visibility_of_element_located(locator)
             )
+            print(f"Validating text '{expected_text}' in element {locator}")
             return expected_text in element.text
         except Exception:
+            print(f"Error validating text '{expected_text}' in element {locator}")
             return False
+
 
